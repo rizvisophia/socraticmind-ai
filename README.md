@@ -1,6 +1,6 @@
 # SocraticMind AI
 
-A browser-based Socratic tutoring project with four subjects: anatomy, physics, algebra, and Richmond, Virginia history. It includes an interactive heart diagram, repeatable scripted practice, and an implemented Node.js backend that connects to OpenAI's Responses API.
+A browser-based Socratic tutoring project for subjects like anatomy, physics, algebra, and Richmond, Virginia history, etc. It includes an interactive heart diagram, repeatable scripted practice, and an implemented Node.js backend that connects to OpenAI's Responses API.
 
 **Status:** review-ready source with passing automated tests. Live provider behavior has not been verified during preparation: no OpenAI API key was available. The previously published static demo is separate and has not been upgraded by this source package.
 
