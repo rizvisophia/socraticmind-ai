@@ -1,15 +1,5 @@
 {
-  "name": "socraticmind-ai",
-  "version": "1.0.0",
-  "private": true,
-  "type": "module",
-  "description": "Socratic tutoring with scripted practice and a server-side OpenAI integration",
-  "engines": {
-    "node": ">=22"
-  },
-  "scripts": {
-    "start": "node --env-file-if-exists=.env src/server.js",
-    "test": "node --test",
-    "check": "node --check src/server.js && node --check src/app.js && node --check src/openai.js && node --check public/live.js"
-  }
+  "name":"socraticmind-ai","version":"1.0.0","private":true,"type":"module",
+  "engines":{"node":">=22.9.0"},
+  "scripts":{"start":"node src/server.js","check":"node --check src/server.js && node --check src/engine.js && node --check src/provider.js && node --check public/app.js","test":"node --test tests/*.test.js"}
 }

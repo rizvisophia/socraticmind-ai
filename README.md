@@ -1,12 +1,12 @@
 # SocraticMind AI
 
-A browser-based Socratic tutoring project for subjects like anatomy, physics, algebra, and Richmond, Virginia history, etc. It includes an interactive heart diagram, repeatable scripted practice, and an implemented Node.js backend that connects to OpenAI's Responses API.
+A browser-based Socratic tutoring project for anatomy, physics, algebra, and Richmond, Virginia history. It includes an interactive heart diagram, guided lesson practice, and a Node.js backend integrating with OpenAI's Responses API.
 
-**Note:** review-ready source with passing automated tests. No OpenAI API key is provided here.
+**Review-ready source:** automated tests are included. No OpenAI API key, model ID, or private credential is provided.
 
 ## Run locally
 
-Requires Node.js 22.9+ (Node.js 24 recommended). No third-party runtime packages or build step.
+Requires **Node.js 22.9+** (Node.js 24 recommended). No third-party runtime packages or build step.
 
 ```bash
 npm ci
@@ -14,14 +14,22 @@ cp .env.example .env
 npm start
 ```
 
-Open http://localhost:3000. Without API configuration, the four scripted lessons work. For live tutoring, privately edit `.env`:
+On Windows PowerShell use `Copy-Item .env.example .env` instead of `cp`.
+
+Open http://localhost:3000. With no OpenAI configuration, four guided-practice lessons work. To enable live tutoring, privately edit `.env`:
 
 ```dotenv
 OPENAI_API_KEY=your_real_key_here
 OPENAI_MODEL=your_responses_compatible_model_id
 ```
 
-Restart the server and click **Use live AI**. The initial question remains curated; subsequent replies go through your backend to OpenAI. Hint and Break it down also request live replies. The diagram remains a local interactive SVG, not image recognition. An OpenAI API account with usable model access and billing is required; never put credentials in frontend files.
+Restart the server and click **Use live AI**. The opening question is curated; later answers, hints, and break-down requests are routed through the Node.js backend to OpenAI. The heart diagram is a local interactive SVG, **not** image recognition. An OpenAI API account with enabled model access and billing is required. Never insert credentials into frontend files.
+
+## Architecture and learning flow
+
+HTML and CSS render the interface; browser JavaScript sends requests to the Node.js backend. The **Socratic Question Engine** provides lesson context, a conversation history and an answer-turn counter. The AI returns one guiding question or hint at a time. The engine aims to close each lesson in **3–6 student answer turns**, depending on the complexity and student progress. This is a bounded tutoring workflow, not proof of mastery or a guarantee that the AI will always produce an ideal instructional response. Hints and break-down requests do not increase the answer-turn counter.
+
+The backend keeps credentials and conversation sessions server-side. Sessions are in memory, expire after two hours, and disappear on restart. The app supports a single Node.js instance; distributed sessions would need a persistent shared store. Provider errors are returned as generic client messages.
 
 ## Checks
 
@@ -30,48 +38,47 @@ npm run check
 npm test
 ```
 
-Tests inject provider responses; they do not prove model quality or a successful live account connection. See [review checklist](docs/REVIEW.md) for the live smoke test.
+Tests inject local practice scenarios and check server routes. They do **not** prove model quality or a successful live API/account connection. See [Review checklist](docs/REVIEW.md) for an optional live smoke test.
 
 ## Put this on GitHub
 
-Unzip the project, open its directory, and create an empty repository in your GitHub account. Then run:
+Create a new empty repository, extract this ZIP and run from inside the project directory:
 
 ```bash
 git init
 git add .
+git diff --cached
 git commit -m "Add SocraticMind tutoring app and OpenAI backend"
 git branch -M main
 git remote add origin https://github.com/YOUR_USERNAME/socraticmind-ai.git
 git push -u origin main
 ```
 
-Replace YOUR_USERNAME and repository name. `.gitignore` excludes `.env`; only the empty `.env.example` belongs in GitHub. Before committing, inspect `git diff --cached` for accidental credentials. Add the student author's accurate identity and contribution statement in your submission. Review the AI assistance disclosure in [CONTRIBUTIONS.md](CONTRIBUTIONS.md). No license is assumed; choose one before inviting reuse.
+Replace `YOUR_USERNAME`. `.gitignore` excludes `.env`; only the placeholder `.env.example` belongs in the repository. Inspect staged changes for accidental credentials. Add the student's accurate identity and contributions in [CONTRIBUTIONS.md](CONTRIBUTIONS.md). No license is assumed; choose one before inviting reuse.
 
 ## Hosting
 
-GitHub stores the source. **GitHub Pages cannot run this Node.js backend.** Use a host capable of a long-running Node.js 24 process, with HTTPS in front of it.
-
-Start command: `npm start`. Set these secrets/environment values in the host's settings:
+GitHub hosts the source, but **GitHub Pages cannot run this backend**. Use a Node.js 24-capable host with HTTPS termination at the edge. Run `npm start`, and set these host environment values privately:
 
 ```dotenv
 NODE_ENV=production
 HOST=0.0.0.0
 PORT=3000
 APP_ORIGIN=https://your-real-domain.example
-APP_ACCESS_TOKEN=a-long-random-reviewer-access-code
+APP_ACCESS_TOKEN=replace-with-a-long-random-private-code
 OPENAI_API_KEY=your_real_key_here
 OPENAI_MODEL=your_responses_compatible_model_id
 ```
 
-Use the host-assigned PORT if provided. APP_ORIGIN must exactly match the browser origin without a trailing slash. Terminate HTTPS at the hosting proxy; production session cookies use Secure. Share the reviewer access code separately. A single instance is required for this in-memory session design. Restarting loses conversations. Do not mount the repository root as static web content; this server serves only allowlisted files from `public/`.
+Use the hosting provider's `PORT` if assigned. `APP_ORIGIN` must exactly match the browser origin, without a trailing slash. HTTPS termination is done by the host proxy; production cookies use `Secure`. The reviewer access code is entered by the visitor when prompted and sent only to the backend. Share it separately. This simple access gate is for private review, **not** a production-scale login system. The app uses a single in-memory process; restarting loses conversations. Do not publish the repository root as web content: this server serves only allowlisted `public/` assets.
 
 ## Review documents
 
 - [Architecture and API contracts](docs/ARCHITECTURE.md)
 - [Tests, limitations, and live smoke test](docs/REVIEW.md)
-- [Technical narration](docs/NARRATION.md)
+- [Technical explanation](docs/NARRATION.md)
 - [Contribution disclosure](CONTRIBUTIONS.md)
 
 ## What makes it different
 
-The application focuses on a guided learning workflow: a student's attempt leads to feedback, a hint, and another question. Live mode supplies lesson-specific instructions to the AI; scripted mode provides a predictable recording path. This teaching approach is a product design choice, not a claim that other AI services cannot tutor.
+This project emphasizes a guided learning workflow: students attempt an answer, receive feedback or hints, then tackle the next focused question. OpenAI generates the live tutoring language, while the application manages lesson context, state, interaction counting, and UI. This teaching approach is a design choice, not a claim that other AI services cannot tutor.
